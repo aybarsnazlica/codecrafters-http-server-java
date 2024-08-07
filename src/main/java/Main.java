@@ -1,4 +1,7 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -11,19 +14,19 @@ public class Main {
             System.out.println("Accepted new connection");
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            OutputStream outputStream = socket.getOutputStream();
-
             String line = reader.readLine();
 
             if (line != null) {
-                sendResponse(line, reader, outputStream, socket);
+                sendResponse(line, reader, socket);
+                socket.close();
             }
         } catch (IOException e) {
             System.out.println("IOException: " + e.getMessage());
         }
     }
 
-    private static void sendResponse(String line, BufferedReader reader, OutputStream outputStream, Socket socket) throws IOException {
+    private static void sendResponse(String line, BufferedReader reader, Socket socket) throws IOException {
+        OutputStream outputStream = socket.getOutputStream();
         String[] tokens = line.split(" ");
         String httpMethod = tokens[0];
         String requestTarget = tokens[1];
@@ -47,7 +50,6 @@ public class Main {
             }
             outputStream.write(response.getBytes());
             outputStream.flush();
-            socket.close();
         }
     }
 }
